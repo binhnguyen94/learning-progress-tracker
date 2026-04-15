@@ -23,7 +23,7 @@ model User {
   updated_at      DateTime      @updatedAt
   categories      Category[]
   topics          Topic[]
-  learning_logs   LearningLog[]
+  logs            LearningLog[]
   target          Target?
 }
 
@@ -41,18 +41,18 @@ model Category {
 }
 
 model Topic {
-  topic_id      String        @id @default(uuid()) @db.Uuid
-  user_id       String        @db.Uuid
-  category_id   String        @db.Uuid
-  topic_name    String
-  description   String?
-  start_date    DateTime
-  status        String
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
-  user          User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  category      Category      @relation(fields: [category_id], references: [category_id], onDelete: Cascade)
-  learning_logs LearningLog[]
+  topic_id    String        @id @default(uuid()) @db.Uuid
+  user_id     String        @db.Uuid
+  category_id String        @db.Uuid
+  topic_name  String
+  description String?
+  start_date  DateTime
+  status      String
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  user        User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  category    Category      @relation(fields: [category_id], references: [category_id], onDelete: Cascade)
+  logs        LearningLog[]
 
   @@index([user_id])
   @@index([category_id])
@@ -81,6 +81,4 @@ model Target {
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
   user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-
-  @@index([user_id])
 }
