@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id         String        @id @default(uuid()) @db.Uuid
+  email           String        @unique
+  name            String
+  profile_picture String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+  categories      Category[]
+  topics          Topic[]
+  learning_logs   LearningLog[]
+  target          Target?
+}
+
+model Category {
+  category_id   String   @id @default(uuid()) @db.Uuid
+  user_id       String   @db.Uuid
+  category_name String
+  description   String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  user          User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  topics        Topic[]
+
+  @@index([user_id])
+}
+
+model Topic {
+  topic_id      String        @id @default(uuid()) @db.Uuid
+  user_id       String        @db.Uuid
+  category_id   String        @db.Uuid
+  topic_name    String
+  description   String?
+  start_date    DateTime
+  status        String
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  user          User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  category      Category      @relation(fields: [category_id], references: [category_id], onDelete: Cascade)
+  learning_logs LearningLog[]
+
+  @@index([user_id])
+  @@index([category_id])
+}
+
+model LearningLog {
+  log_id           String   @id @default(uuid()) @db.Uuid
+  user_id          String   @db.Uuid
+  topic_id         String   @db.Uuid
+  study_date       DateTime
+  duration_minutes Int
+  study_content    String
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  user             User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  topic            Topic    @relation(fields: [topic_id], references: [topic_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([topic_id])
+}
+
+model Target {
+  target_id    String   @id @default(uuid()) @db.Uuid
+  user_id      String   @unique @db.Uuid
+  target_hours Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
