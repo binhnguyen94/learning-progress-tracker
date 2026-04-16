@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import categoryRoutes from "./category.routes.js";
+import dashboardRoutes from "./dashboard.routes.js";
 import sessionRoutes from "./session.routes.js";
 import topicRoutes from "./topic.routes.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
@@ -17,5 +18,6 @@ router.get(
 router.use("/categories", categoryRoutes);
 router.use("/topics", topicRoutes);
 router.use("/sessions", sessionRoutes);
+router.use("/dashboard", dashboardRoutes);
 
 export default router;
