@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import categoryRoutes from "./category.routes.js";
+import topicRoutes from "./topic.routes.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = Router();
@@ -13,5 +14,6 @@ router.get(
 );
 
 router.use("/categories", categoryRoutes);
+router.use("/topics", topicRoutes);
 
 export default router;
