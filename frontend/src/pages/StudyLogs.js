@@ -18,6 +18,10 @@ const StudyLogs = () => {
   const [error, setError] = useState("");
 
   const calculateProgress = (planned, actual) => {
+    if (!planned || planned === 0) {
+      return 0;
+    }
+
     if (!actual) {
       return 0;
     }
@@ -67,7 +71,12 @@ const StudyLogs = () => {
     event.preventDefault();
 
     const plannedValue = Number(plannedMinutes);
-    if (!topicId || !Number.isFinite(plannedValue) || plannedValue <= 0) {
+    if (!topicId || !Number.isFinite(plannedValue)) {
+      return;
+    }
+
+    if (plannedValue <= 0) {
+      alert("Planned minutes must be greater than 0");
       return;
     }
 

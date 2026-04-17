@@ -19,6 +19,12 @@ const getTopicOrThrow = async (topicId) => {
 export const createSession = async ({ topic_id, planned_minutes, notes }) => {
   await getTopicOrThrow(topic_id);
 
+  if (!planned_minutes || planned_minutes <= 0) {
+    const error = new Error("Planned minutes must be > 0");
+    error.statusCode = 400;
+    throw error;
+  }
+
   return prisma.studySession.create({
     data: {
       topic_id,
