@@ -90,3 +90,54 @@ a {
   border-color: #fecaca;
   color: #b91c1c;
 }
+
+.categories-page {
+  max-width: 640px;
+}
+
+.categories-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.categories-form input {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  flex: 1;
+  font-size: 14px;
+  padding: 10px 12px;
+}
+
+.categories-form button,
+.category-item button {
+  background: #0f766e;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 10px 14px;
+}
+
+.categories-form button:hover,
+.category-item button:hover {
+  background: #0d9488;
+}
+
+.categories-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.category-item {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 12px 14px;
+}
