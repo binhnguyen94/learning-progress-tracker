@@ -16,24 +16,36 @@ const getTopicOrThrow = async (topicId) => {
   return topic;
 };
 
-export const startSession = async ({ topic_id, notes }) => {
+export const createSession = async ({ topic_id, planned_minutes, notes }) => {
   await getTopicOrThrow(topic_id);
 
   return prisma.studySession.create({
     data: {
       topic_id,
-      start_time: new Date(),
+      planned_minutes,
+      actual_minutes: null,
+      start_time: null,
       end_time: null,
-      duration_minutes: null,
       notes,
     },
   });
 };
 
-export const endSession = async (sessionId) => {
+export const startSession = async (session_id) => {
+  return prisma.studySession.update({
+    where: {
+      session_id,
+    },
+    data: {
+      start_time: new Date(),
+    },
+  });
+};
+
+export const endSession = async (session_id) => {
   const session = await prisma.studySession.findUnique({
     where: {
-      session_id: sessionId,
+      session_id,
     },
   });
 
@@ -49,19 +61,25 @@ export const endSession = async (sessionId) => {
     throw error;
   }
 
+  if (!session.start_time) {
+    const error = new Error("Study session has not started");
+    error.statusCode = 400;
+    throw error;
+  }
+
   const endTime = new Date();
-  const durationMinutes = Math.max(
+  const actualMinutes = Math.max(
     0,
     Math.round((endTime.getTime() - session.start_time.getTime()) / 60000),
   );
 
   return prisma.studySession.update({
     where: {
-      session_id: sessionId,
+      session_id,
     },
     data: {
       end_time: endTime,
-      duration_minutes: durationMinutes,
+      actual_minutes: actualMinutes,
     },
   });
 };

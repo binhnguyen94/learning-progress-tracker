@@ -1,4 +1,5 @@
 import {
+  createSession,
   deleteSession,
   endSession,
   getSessions,
@@ -58,7 +59,32 @@ const buildErrorResponse = (error) => {
 export const startSessionController = async (req, res) => {
   try {
     const body = req.body || {};
+    const sessionId = body.session_id?.trim();
+
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "session_id is required",
+      });
+    }
+
+    const session = await startSession(sessionId);
+
+    return res.status(200).json({
+      success: true,
+      data: session,
+    });
+  } catch (error) {
+    const { statusCode, body } = buildErrorResponse(error);
+    return res.status(statusCode).json(body);
+  }
+};
+
+export const createSessionController = async (req, res) => {
+  try {
+    const body = req.body || {};
     const topicId = body.topic_id?.trim();
+    const plannedMinutes = Number(body.planned_minutes);
     const notes = body.notes?.trim();
 
     if (!topicId) {
@@ -68,8 +94,16 @@ export const startSessionController = async (req, res) => {
       });
     }
 
-    const session = await startSession({
+    if (!Number.isInteger(plannedMinutes) || plannedMinutes <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "planned_minutes must be a positive integer",
+      });
+    }
+
+    const session = await createSession({
       topic_id: topicId,
+      planned_minutes: plannedMinutes,
       notes: notes || null,
     });
 
@@ -86,7 +120,7 @@ export const startSessionController = async (req, res) => {
 export const endSessionController = async (req, res) => {
   try {
     const body = req.body || {};
-    const sessionId = body.session_id?.trim();
+    const sessionId = body.session_id?.trim() || req.params.id?.trim();
 
     if (!sessionId) {
       return res.status(400).json({

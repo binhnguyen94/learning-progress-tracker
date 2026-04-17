@@ -87,9 +87,10 @@ model Target {
 model StudySession {
   session_id       String    @id @default(uuid()) @db.Uuid
   topic_id         String    @db.Uuid
-  start_time       DateTime
+  planned_minutes  Int
+  actual_minutes   Int?
+  start_time       DateTime?
   end_time         DateTime?
-  duration_minutes Int?
   notes            String?
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt

@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  createSessionController,
   deleteSessionController,
   endSessionController,
   getSessionsController,
@@ -9,8 +10,10 @@ import {
 
 const router = Router();
 
+router.post("/", createSessionController);
 router.post("/start", startSessionController);
 router.post("/end", endSessionController);
+router.post("/:id/end", endSessionController);
 router.get("/", getSessionsController);
 router.delete("/:id", deleteSessionController);
 
