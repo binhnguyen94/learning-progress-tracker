@@ -4,16 +4,26 @@ import { getTopics } from "../services/topicService";
 import {
   createStudySession,
   deleteStudySession,
+  endStudySession,
   getStudySessions,
+  startStudySession,
 } from "../services/studySessionService";
 
 const StudyLogs = () => {
   const [topics, setTopics] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [topicId, setTopicId] = useState("");
-  const [duration, setDuration] = useState("");
+  const [plannedMinutes, setPlannedMinutes] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
+
+  const calculateProgress = (planned, actual) => {
+    if (!actual) {
+      return 0;
+    }
+
+    return Math.round((actual / planned) * 100);
+  };
 
   const fetchData = async () => {
     try {
@@ -56,14 +66,14 @@ const StudyLogs = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const durationValue = Number(duration);
-    if (!topicId || !Number.isFinite(durationValue) || durationValue <= 0) {
+    const plannedValue = Number(plannedMinutes);
+    if (!topicId || !Number.isFinite(plannedValue) || plannedValue <= 0) {
       return;
     }
 
     try {
-      await createStudySession(topicId, durationValue, note.trim());
-      setDuration("");
+      await createStudySession(topicId, plannedValue, note.trim());
+      setPlannedMinutes("");
       setNote("");
       await fetchData();
     } catch (error) {
@@ -75,6 +85,26 @@ const StudyLogs = () => {
   const handleDelete = async (id) => {
     try {
       await deleteStudySession(id);
+      await fetchData();
+    } catch (error) {
+      console.error("Study session error:", error);
+      setError("Failed to load study sessions");
+    }
+  };
+
+  const handleStart = async (id) => {
+    try {
+      await startStudySession(id);
+      await fetchData();
+    } catch (error) {
+      console.error("Study session error:", error);
+      setError("Failed to load study sessions");
+    }
+  };
+
+  const handleEnd = async (id) => {
+    try {
+      await endStudySession(id);
       await fetchData();
     } catch (error) {
       console.error("Study session error:", error);
@@ -101,9 +131,9 @@ const StudyLogs = () => {
         <input
           type="number"
           min="1"
-          value={duration}
-          onChange={(event) => setDuration(event.target.value)}
-          placeholder="Enter duration (minutes)"
+          value={plannedMinutes}
+          onChange={(event) => setPlannedMinutes(event.target.value)}
+          placeholder="Enter planned minutes"
         />
 
         <input
@@ -118,15 +148,39 @@ const StudyLogs = () => {
 
       {error && <p className="error-text">{error}</p>}
 
+      <div className="study-logs-headings">
+        <span>Topic</span>
+        <span>Planned</span>
+        <span>Actual</span>
+        <span>Progress</span>
+        <span>Actions</span>
+      </div>
+
       <ul className="study-logs-list">
         {sessions.map((session) => (
           <li key={session.id} className="study-log-item">
             <span>{session.topic?.name}</span>
-            <span>{session.duration_minutes} min</span>
-            <span>{session.note || "-"}</span>
-            <button type="button" onClick={() => handleDelete(session.id)}>
-              Delete
-            </button>
+            <span>{session.planned_minutes} min</span>
+            <span>{session.actual_minutes || 0} min</span>
+            <span>
+              {calculateProgress(session.planned_minutes, session.actual_minutes)}%
+            </span>
+            <div className="study-log-actions">
+              {!session.start_time && (
+                <button type="button" onClick={() => handleStart(session.id)}>
+                  Start
+                </button>
+              )}
+              {session.start_time && !session.end_time && (
+                <button type="button" onClick={() => handleEnd(session.id)}>
+                  End
+                </button>
+              )}
+              {session.end_time && <span className="study-completed">Completed</span>}
+              <button type="button" onClick={() => handleDelete(session.id)}>
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>

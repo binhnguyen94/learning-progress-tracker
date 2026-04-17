@@ -254,6 +254,17 @@ a {
   padding: 0;
 }
 
+.study-logs-headings {
+  color: #475569;
+  display: grid;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 12px;
+  grid-template-columns: 1.3fr 0.8fr 0.8fr 0.8fr 1.5fr;
+  margin-bottom: 10px;
+  padding: 0 14px;
+}
+
 .study-log-item {
   align-items: center;
   background: #ffffff;
@@ -261,7 +272,18 @@ a {
   border-radius: 8px;
   display: grid;
   gap: 12px;
-  grid-template-columns: 1.4fr 0.7fr 1.2fr auto;
+  grid-template-columns: 1.3fr 0.8fr 0.8fr 0.8fr 1.5fr;
   margin-bottom: 10px;
   padding: 12px 14px;
+}
+
+.study-log-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.study-completed {
+  color: #0f766e;
+  font-weight: 700;
 }
