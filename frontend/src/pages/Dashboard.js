@@ -21,7 +21,8 @@ const Dashboard = () => {
       try {
         const data = await getDashboardSummary();
         setSummary(data);
-      } catch (err) {
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
         setError("Unable to load dashboard summary.");
       } finally {
         setIsLoading(false);
