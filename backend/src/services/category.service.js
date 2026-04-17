@@ -1,6 +1,6 @@
 import prisma from "../prisma/client.js";
 
-const MOCK_USER_ID = "user-test-id";
+const MOCK_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
 
 export const createCategory = async ({ category_name, description }) => {
   return prisma.category.create({

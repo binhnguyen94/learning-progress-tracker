@@ -48,8 +48,12 @@ export const createCategoryController = async (req, res) => {
       data: category,
     });
   } catch (error) {
-    const { statusCode, body } = buildErrorResponse(error);
-    return res.status(statusCode).json(body);
+    console.error("CATEGORY ERROR:", error);
+    
+    const errorResponse = buildErrorResponse(error);
+    return res
+      .status(errorResponse.statusCode)
+      .json(errorResponse.body);
   }
 };
 
@@ -104,8 +108,12 @@ export const updateCategoryController = async (req, res) => {
       data: category,
     });
   } catch (error) {
-    const { statusCode, body } = buildErrorResponse(error);
-    return res.status(statusCode).json(body);
+    console.error("CATEGORY ERROR:", error);
+    
+    const errorResponse = buildErrorResponse(error);
+    return res
+      .status(errorResponse.statusCode)
+      .json(errorResponse.body);
   }
 };
 
@@ -120,7 +128,11 @@ export const deleteCategoryController = async (req, res) => {
       data: category,
     });
   } catch (error) {
-    const { statusCode, body } = buildErrorResponse(error);
-    return res.status(statusCode).json(body);
+    console.error("CATEGORY ERROR:", error);
+    
+    const errorResponse = buildErrorResponse(error);
+    return res
+      .status(errorResponse.statusCode)
+      .json(errorResponse.body);
   }
 };

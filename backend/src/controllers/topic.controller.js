@@ -100,8 +100,12 @@ export const createTopicController = async (req, res) => {
       data: topic,
     });
   } catch (error) {
-    const { statusCode, body } = buildErrorResponse(error);
-    return res.status(statusCode).json(body);
+    console.error("TOPICS ERROR:", error);
+    
+    const errorResponse = buildErrorResponse(error);
+    return res
+      .status(errorResponse.statusCode)
+      .json(errorResponse.body);
   }
 };
 
