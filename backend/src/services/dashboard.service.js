@@ -20,55 +20,45 @@ export const getDashboardSummary = async () => {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  const [
-    totalStudy,
-    todayStudy,
-    weeklyStudy,
-    topicCount,
-    categoryCount,
-    activeSessions,
-  ] = await Promise.all([
-    prisma.studySession.aggregate({
-      _sum: {
-        actual_minutes: true,
-      },
-    }),
-    prisma.studySession.aggregate({
-      _sum: {
-        actual_minutes: true,
-      },
-      where: {
-        start_time: {
-          gte: startOfToday,
-          lt: startOfTomorrow,
+  const [totalStudy, todayStudy, weeklyStudy, topicCount, categoryCount] =
+    await Promise.all([
+      prisma.learningLog.aggregate({
+        _sum: {
+          duration_minutes: true,
         },
-      },
-    }),
-    prisma.studySession.aggregate({
-      _sum: {
-        actual_minutes: true,
-      },
-      where: {
-        start_time: {
-          gte: sevenDaysAgo,
+      }),
+      prisma.learningLog.aggregate({
+        _sum: {
+          duration_minutes: true,
         },
-      },
-    }),
-    prisma.topic.count(),
-    prisma.category.count(),
-    prisma.studySession.count({
-      where: {
-        end_time: null,
-      },
-    }),
-  ]);
+        where: {
+          study_date: {
+            gte: startOfToday,
+            lt: startOfTomorrow,
+          },
+        },
+      }),
+      prisma.learningLog.aggregate({
+        _sum: {
+          duration_minutes: true,
+        },
+        where: {
+          study_date: {
+            gte: sevenDaysAgo,
+          },
+        },
+      }),
+      prisma.topic.count(),
+      prisma.category.count(),
+    ]);
 
   return {
-    total_study_hours: minutesToHours(totalStudy._sum.actual_minutes),
-    today_hours: minutesToHours(todayStudy._sum.actual_minutes),
-    weekly_hours: minutesToHours(weeklyStudy._sum.actual_minutes),
+    total_study_hours: minutesToHours(totalStudy._sum.duration_minutes),
+    today_hours: minutesToHours(todayStudy._sum.duration_minutes),
+    weekly_hours: minutesToHours(weeklyStudy._sum.duration_minutes),
     topic_count: topicCount,
     category_count: categoryCount,
-    active_sessions: activeSessions,
+    // Session architecture has been removed; this metric is intentionally fixed.
+    active_sessions: 0,
   };
 };

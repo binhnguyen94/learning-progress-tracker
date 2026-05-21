@@ -45,27 +45,12 @@ const buildErrorResponse = (error) => {
   };
 };
 
-const normalizeEstimatedHours = (value) => {
-  if (value === undefined || value === null || value === "") {
-    return null;
-  }
-
-  const estimatedHours = Number(value);
-
-  if (!Number.isInteger(estimatedHours) || estimatedHours < 0) {
-    return undefined;
-  }
-
-  return estimatedHours;
-};
-
 export const createTopicController = async (req, res) => {
   try {
     const body = req.body || {};
     const categoryId = body.category_id?.trim();
     const topicName = body.topic_name?.trim();
     const description = body.description?.trim();
-    const estimatedHours = normalizeEstimatedHours(body.estimated_hours);
 
     if (!categoryId) {
       return res.status(400).json({
@@ -81,18 +66,10 @@ export const createTopicController = async (req, res) => {
       });
     }
 
-    if (estimatedHours === undefined) {
-      return res.status(400).json({
-        success: false,
-        message: "estimated_hours must be a non-negative integer",
-      });
-    }
-
     const topic = await createTopic({
       category_id: categoryId,
       topic_name: topicName,
       description: description || null,
-      estimated_hours: estimatedHours,
     });
 
     return res.status(201).json({
@@ -160,19 +137,6 @@ export const updateTopicController = async (req, res) => {
 
     if (Object.hasOwn(body, "description")) {
       updateData.description = body.description?.trim() || null;
-    }
-
-    if (Object.hasOwn(body, "estimated_hours")) {
-      const estimatedHours = normalizeEstimatedHours(body.estimated_hours);
-
-      if (estimatedHours === undefined) {
-        return res.status(400).json({
-          success: false,
-          message: "estimated_hours must be a non-negative integer",
-        });
-      }
-
-      updateData.estimated_hours = estimatedHours;
     }
 
     if (Object.keys(updateData).length === 0) {

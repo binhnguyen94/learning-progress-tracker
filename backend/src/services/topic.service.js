@@ -1,13 +1,12 @@
 import prisma from "../prisma/client.js";
 
 const MOCK_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
-const DEFAULT_TOPIC_STATUS = "Not Started";
+const DEFAULT_TOPIC_STATUS = "ACTIVE";
 
 export const createTopic = async ({
   category_id,
   topic_name,
   description,
-  estimated_hours,
 }) => {
   return prisma.topic.create({
     data: {
@@ -15,7 +14,6 @@ export const createTopic = async ({
       category_id,
       topic_name,
       description,
-      estimated_hours,
       start_date: new Date(),
       status: DEFAULT_TOPIC_STATUS,
     },
