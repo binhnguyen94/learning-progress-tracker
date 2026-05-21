@@ -22,7 +22,6 @@ model User {
   updated_at      DateTime      @updatedAt
   categories      Category[]
   topics          Topic[]
-  logs            LearningLog[]
   target          Target?
 }
 
@@ -68,11 +67,7 @@ model LearningLog {
   study_content    String
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
-  user             User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   topic            Topic    @relation(fields: [topic_id], references: [topic_id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@index([topic_id])
 }
 
 model Target {
