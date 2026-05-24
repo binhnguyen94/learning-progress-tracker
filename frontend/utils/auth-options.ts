@@ -12,6 +12,20 @@ type BackendUserResponse = {
   };
 };
 
+export const authEnv = {
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  nextAuthSecret: process.env.NEXTAUTH_SECRET,
+};
+
+export const isGoogleAuthConfigured = Boolean(
+  authEnv.googleClientId &&
+    authEnv.googleClientSecret &&
+    authEnv.nextAuthSecret &&
+    authEnv.googleClientId !== "your-google-client-id" &&
+    authEnv.googleClientSecret !== "your-google-client-secret",
+);
+
 const syncGoogleUser = async ({
   email,
   name,
@@ -21,7 +35,7 @@ const syncGoogleUser = async ({
   name: string;
   image?: string | null;
 }) => {
-  const secret = process.env.NEXTAUTH_SECRET;
+  const secret = authEnv.nextAuthSecret;
 
   if (!secret) {
     throw new Error("NEXTAUTH_SECRET is not configured");
@@ -64,17 +78,19 @@ const syncGoogleUser = async ({
 };
 
 export const authOptions: NextAuthOptions = {
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
-  ],
+  providers: isGoogleAuthConfigured
+    ? [
+        GoogleProvider({
+          clientId: authEnv.googleClientId || "",
+          clientSecret: authEnv.googleClientSecret || "",
+        }),
+      ]
+    : [],
   pages: {
     signIn: "/login",
     error: "/login",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: authEnv.nextAuthSecret || "development-auth-secret-change-me",
   session: {
     strategy: "jwt",
   },
