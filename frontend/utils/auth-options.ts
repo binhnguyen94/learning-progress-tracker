@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { SignJWT } from "jose";
 
 type BackendUserResponse = {
   success: boolean;
@@ -20,13 +21,31 @@ const syncGoogleUser = async ({
   name: string;
   image?: string | null;
 }) => {
+  const secret = process.env.NEXTAUTH_SECRET;
+
+  if (!secret) {
+    throw new Error("NEXTAUTH_SECRET is not configured");
+  }
+
+  const syncToken = await new SignJWT({
+    email,
+    name,
+    profile_picture: image || null,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer("learning-progress-tracker")
+    .setAudience("learning-progress-tracker-auth-sync")
+    .setIssuedAt()
+    .setExpirationTime("2m")
+    .sign(new TextEncoder().encode(secret));
+
   const response = await fetch(
     `${process.env.BACKEND_API_URL || "http://localhost:5001/api"}/auth/google`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-internal-auth-secret": process.env.INTERNAL_AUTH_SECRET || "",
+        Authorization: `Bearer ${syncToken}`,
       },
       body: JSON.stringify({
         email,
@@ -55,12 +74,13 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
     error: "/login",
   },
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user?.email && user.name) {
+      if (!token.user_id && user?.email && user.name) {
         const backendUser = await syncGoogleUser({
           email: user.email,
           name: user.name,
@@ -78,6 +98,17 @@ export const authOptions: NextAuthOptions = {
       }
 
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+
+      return `${baseUrl}/dashboard`;
     },
   },
 };

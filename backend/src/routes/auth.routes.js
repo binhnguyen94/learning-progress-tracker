@@ -1,10 +1,10 @@
 import { Router } from "express";
 
 import { syncGoogleUserController } from "../controllers/auth.controller.js";
-import { requireInternalAuth } from "../middleware/auth.middleware.js";
+import { requireAuthSync } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-router.post("/google", requireInternalAuth, syncGoogleUserController);
+router.post("/google", requireAuthSync, syncGoogleUserController);
 
 export default router;

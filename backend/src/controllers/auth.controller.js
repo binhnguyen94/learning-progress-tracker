@@ -2,7 +2,7 @@ import { upsertGoogleUser } from "../services/auth.service.js";
 
 export const syncGoogleUserController = async (req, res, next) => {
   try {
-    const { email, name, profile_picture } = req.body || {};
+    const { email, name, profile_picture } = req.authSyncUser || {};
 
     if (!email || !name) {
       return res.status(400).json({
