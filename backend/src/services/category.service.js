@@ -1,21 +1,19 @@
 import prisma from "../prisma/client.js";
 
-const MOCK_USER_ID = "550e8400-e29b-41d4-a716-446655440000";
-
-export const createCategory = async ({ category_name, description }) => {
+export const createCategory = async (userId, { category_name, description }) => {
   return prisma.category.create({
     data: {
-      user_id: MOCK_USER_ID,
+      user_id: userId,
       category_name,
-      description,
+      description: description || null,
     },
   });
 };
 
-export const getCategories = async () => {
+export const getCategories = async (userId) => {
   return prisma.category.findMany({
     where: {
-      user_id: MOCK_USER_ID,
+      user_id: userId,
     },
     orderBy: {
       created_at: "desc",
@@ -23,19 +21,53 @@ export const getCategories = async () => {
   });
 };
 
-export const updateCategory = async (categoryId, data) => {
-  return prisma.category.update({
+export const updateCategory = async (userId, categoryId, data) => {
+  const result = await prisma.category.updateMany({
     where: {
       category_id: categoryId,
+      user_id: userId,
     },
-    data,
+    data: {
+      ...data,
+      description: Object.hasOwn(data, "description")
+        ? data.description || null
+        : undefined,
+    },
+  });
+
+  if (result.count === 0) {
+    const error = new Error("Category not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return prisma.category.findFirst({
+    where: {
+      category_id: categoryId,
+      user_id: userId,
+    },
   });
 };
 
-export const deleteCategory = async (categoryId) => {
-  return prisma.category.delete({
+export const deleteCategory = async (userId, categoryId) => {
+  const category = await prisma.category.findFirst({
     where: {
       category_id: categoryId,
+      user_id: userId,
     },
   });
+
+  if (!category) {
+    const error = new Error("Category not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  await prisma.category.delete({
+    where: {
+      category_id: category.category_id,
+    },
+  });
+
+  return category;
 };

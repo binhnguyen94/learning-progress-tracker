@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import authRoutes from "./auth.routes.js";
 import categoryRoutes from "./category.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
 import logsRoutes from "./logs.routes.js";
@@ -15,6 +16,7 @@ router.get(
   }),
 );
 
+router.use("/auth", authRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/topics", topicRoutes);
 router.use("/logs", logsRoutes);
